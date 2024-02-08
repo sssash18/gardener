@@ -18,10 +18,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/gardener/gardener/test/framework"
 	"io"
+	"k8s.io/apimachinery/pkg/runtime"
 	"strings"
 
+	errorsutils "github.com/gardener/gardener/pkg/utils/errors"
 	"github.com/hashicorp/go-multierror"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -31,8 +32,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	errorsutils "github.com/gardener/gardener/pkg/utils/errors"
+	ym "sigs.k8s.io/yaml"
 )
 
 // defaultApplier applies objects by retrieving their current state and then either creating / updating them
@@ -62,6 +62,15 @@ func NewApplierForConfig(config *rest.Config) (Applier, error) {
 	}
 
 	return NewApplier(c, opts.Mapper), nil
+}
+
+func PrettyPrintObject(obj runtime.Object) error {
+	d, err := ym.Marshal(obj)
+	if err != nil {
+		return err
+	}
+	fmt.Print(string(d))
+	return nil
 }
 
 func (a *defaultApplier) applyObject(ctx context.Context, desired *unstructured.Unstructured, options MergeFuncs) error {
@@ -96,7 +105,7 @@ func (a *defaultApplier) applyObject(ctx context.Context, desired *unstructured.
 	current.SetGroupVersionKind(desired.GroupVersionKind())
 	if err = a.client.Get(ctx, key, current); err != nil {
 		fmt.Println(">>>>>>>>>>>>>>>>>>>>CREATION<<<<<<<<<<<<<<<<<<<<<<<<<<")
-		fmt.Println(framework.PrettyPrintObject(desired))
+		fmt.Println(PrettyPrintObject(desired))
 		if apierrors.IsNotFound(err) {
 			return a.client.Create(ctx, desired)
 		}
@@ -107,9 +116,9 @@ func (a *defaultApplier) applyObject(ctx context.Context, desired *unstructured.
 		return err
 	}
 	fmt.Println("^^^^^^^^^^^^^^CURRENT^^^^^^^^^^^^^^^")
-	fmt.Println(framework.PrettyPrintObject(current))
+	fmt.Println(PrettyPrintObject(current))
 	fmt.Println("^^^^^^^^^^^^^^DESIRED^^^^^^^^^^^^^^^")
-	fmt.Println(framework.PrettyPrintObject(desired))
+	fmt.Println(PrettyPrintObject(desired))
 
 	return a.client.Update(ctx, desired)
 }
@@ -322,7 +331,7 @@ func (a *defaultApplier) ApplyManifest(ctx context.Context, r UnstructuredReader
 	for {
 		obj, err := r.Read()
 		fmt.Println("******************************************")
-		fmt.Println(framework.PrettyPrintObject(obj))
+		fmt.Println(PrettyPrintObject(obj))
 		if err == io.EOF {
 			break
 		}
