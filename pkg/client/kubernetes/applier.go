@@ -95,6 +95,8 @@ func (a *defaultApplier) applyObject(ctx context.Context, desired *unstructured.
 	current := &unstructured.Unstructured{}
 	current.SetGroupVersionKind(desired.GroupVersionKind())
 	if err = a.client.Get(ctx, key, current); err != nil {
+		fmt.Println(">>>>>>>>>>>>>>>>>>>>CREATION<<<<<<<<<<<<<<<<<<<<<<<<<<")
+		fmt.Println(framework.PrettyPrintObject(desired))
 		if apierrors.IsNotFound(err) {
 			return a.client.Create(ctx, desired)
 		}
@@ -104,6 +106,10 @@ func (a *defaultApplier) applyObject(ctx context.Context, desired *unstructured.
 	if err := a.mergeObjects(desired, current, options); err != nil {
 		return err
 	}
+	fmt.Println("^^^^^^^^^^^^^^CURRENT^^^^^^^^^^^^^^^")
+	fmt.Println(framework.PrettyPrintObject(current))
+	fmt.Println("^^^^^^^^^^^^^^DESIRED^^^^^^^^^^^^^^^")
+	fmt.Println(framework.PrettyPrintObject(desired))
 
 	return a.client.Update(ctx, desired)
 }
