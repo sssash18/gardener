@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/gardener/gardener/test/framework"
 	"io"
 	"strings"
 
@@ -314,6 +315,8 @@ func (a *defaultApplier) ApplyManifest(ctx context.Context, r UnstructuredReader
 
 	for {
 		obj, err := r.Read()
+		fmt.Println("******************************************")
+		fmt.Println(framework.PrettyPrintObject(obj))
 		if err == io.EOF {
 			break
 		}
