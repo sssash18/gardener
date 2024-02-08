@@ -99,10 +99,7 @@ func (a *defaultApplier) applyObject(ctx context.Context, desired *unstructured.
 		}
 		return err
 	}
-	fmt.Println("????????????")
-	fmt.Println(current)
-	fmt.Println("????????????")
-	fmt.Println(desired)
+
 	if err := a.mergeObjects(desired, current, options); err != nil {
 		return err
 	}
