@@ -17,6 +17,7 @@ package kubernetes
 import (
 	"context"
 	"embed"
+	"fmt"
 
 	"k8s.io/client-go/rest"
 
@@ -119,6 +120,8 @@ func (c *chartApplier) newManifestReader(embeddedFS embed.FS, chartPath, namespa
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+	fmt.Println(string(release.Manifest()))
+	fmt.Println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
 	return NewManifestReader(release.Manifest()), nil
 }
